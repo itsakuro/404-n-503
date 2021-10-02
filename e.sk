@@ -1,0 +1,43 @@
+command /duel [<offline player>]:
+	trigger:
+		if {%player%.pvp.invite} is set:
+			message "&c&lERROR &8| &fYou've already sent a duel request! Please wait for it to expire or be accepted before trying again."
+		else if arg-1 is not set:
+			message "&9&lUSAGE &8| &f/duel (player)"
+		else if arg-1 is player:
+			message "&c&lERROR &8| &fYou can't duel yourself."
+		else if arg-1 is not online:
+			message "&c&lERROR &8| &c%arg-1% &fis not online."
+		else:
+			if {%arg-1%.pvp.invite} is not set:
+				open virtual chest inventory with size 5 named "&8&lDUEL %uppercase arg-1's name%" to player
+				format gui slot 13 of player with arg-1's skull named "&eRequest to duel" with lore "%{%arg-1%.rank}% %arg-1%"
+				format gui slot 31 of player with shiny iron sword named "&b&lCLASSIC DUELS" with lore "&8Send a &7Classic Duels &8request." to run:
+					close player's inventory
+					make player execute command "/arrangeduel %player% %arg-1%"
+			else:
+				if {%arg-1%.pvp.invite} is not player:
+					message "&c&lERROR &8| &fThat player is busy!"
+				else:
+					delete {%arg-1%.pvp.invite}
+					message "&a&lACCEPT &8| &bClassic Duels &frequest accepted!"
+					message "&a&lACCEPT &8| &a%player% &faccepted the &bClassic Duels &frequest!" to arg-1
+
+command /arrangeduel [<player>] [<player>]:
+	executable by: console
+	trigger:
+		message "&9&m-------------------------------" to arg-1
+		message "&fSent a classic duels request to &b%arg-2%&b!" to arg-1
+		message "&9&m-------------------------------" to arg-1
+		message "&2&m-------------------------------" to arg-2
+		message "&a&lINCOMING DUEL REQUEST" to arg-2
+		message "&f" to arg-2
+		message "&a%arg-1% &fsent you a &bClassic Duels &frequest!" to arg-2
+		message "&fYou have &a30 seconds &fto accept it," to arg-2
+		message "&frun &a/duel %arg-1% &fto accept." to arg-2
+		message "&2&m-------------------------------" to arg-2
+		wait 30 seconds
+		if {%arg-1%.pvp.invite} is set:
+			delete {%arg-1%.pvp.invite}
+			message "&c&lEXPIRE &8| &fThe duel request to &c%arg-2% &fexpired." to arg-1
+			message "&c&lEXPIRE &8| &fThe duel request from &c%arg-1% &fexpired." to arg-2
